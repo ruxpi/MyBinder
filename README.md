@@ -54,12 +54,7 @@ signatures hold `4 × sheets-per-signature` pages.
 
 ## Install & run
 
-Requires **Python 3.13** on macOS.
-
-> ⚠️ **Not Python 3.14.** PySide6 6.11 crashes on startup under Python 3.14
-> (`SIGABRT` in the Qt platform plugin — macOS shows a "Python quit
-> unexpectedly" report). Use 3.13: `brew install python@3.13`. The launcher
-> script below picks 3.13 automatically.
+Requires Python 3.13 or 3.14 on macOS.
 
 ```bash
 git clone https://github.com/ruxpi/MyBinder.git
@@ -70,10 +65,15 @@ cd MyBinder
 Or manually:
 
 ```bash
-python3.13 -m venv .venv
+python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python mybinder.py
 ```
+
+> **Note:** A damaged PySide6 install can abort Qt at startup (macOS shows a
+> "Python quit unexpectedly" report). To guard against that, `mybinder.py` runs
+> a fast Qt sanity check on launch and repairs PySide6 automatically if it
+> fails, instead of crashing.
 
 ## Command line
 

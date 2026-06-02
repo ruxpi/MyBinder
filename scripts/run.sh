@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # Convenience launcher: sets up the venv on first run, then starts the GUI.
-#
-# IMPORTANT: uses Python 3.13. PySide6 6.11 crashes on startup under Python
-# 3.14 on macOS (SIGABRT in the Qt platform plugin), so we deliberately avoid
-# whatever "python3" happens to point at.
+# Targets Python 3.14 (falls back to any python3). mybinder.py self-heals a
+# damaged PySide6 install on startup, so a flaky Qt won't crash the app.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PYTHON=""
-for cand in python3.13 /opt/homebrew/bin/python3.13 /usr/local/bin/python3.13; do
+for cand in python3.14 /opt/homebrew/bin/python3.14 python3.13 python3; do
     if command -v "$cand" >/dev/null 2>&1; then PYTHON="$cand"; break; fi
 done
 if [ -z "$PYTHON" ]; then
-    echo "Python 3.13 not found. Install it (e.g. 'brew install python@3.13')." >&2
-    echo "Python 3.14 is not supported: PySide6 crashes on startup there." >&2
+    echo "No python3 found. Install Python (e.g. 'brew install python@3.14')." >&2
     exit 1
 fi
 

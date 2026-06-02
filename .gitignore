@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# py2app / build artifacts
+build/
+dist/
+
+# macOS
+.DS_Store
+
+# scratch / sample output
+*_imposed.pdf
+/scratch/

@@ -396,7 +396,28 @@ def _row(label: str, widget: QWidget) -> QHBoxLayout:
     return h
 
 
+def _ensure_qt_plugin_path() -> None:
+    """Point Qt at PySide6's own plugins directory.
+
+    A crash we hit during development was Qt searching the framework
+    ``python.app/platforms`` folder (which has no plugins) instead of the one
+    bundled with PySide6, then calling ``qFatal`` — which shows up as a macOS
+    'Python quit unexpectedly' crash. Adding the path explicitly makes startup
+    robust regardless of how the interpreter was launched.
+    """
+    try:
+        import PySide6
+        plugins = os.path.join(os.path.dirname(PySide6.__file__), "Qt", "plugins")
+        if os.path.isdir(plugins):
+            os.environ.setdefault("QT_PLUGIN_PATH", plugins)
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.addLibraryPath(plugins)
+    except Exception:
+        pass
+
+
 def main() -> int:
+    _ensure_qt_plugin_path()
     app = QApplication(sys.argv)
     app.setApplicationName("MyBinder")
     apply_classic_theme(app)

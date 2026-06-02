@@ -27,8 +27,10 @@ interface**, pinstriped title bar and all.
   …so you can trade off padding waste against how thick (and foldable) each
   signature is.
 
-- **Folio imposition** — the standard 2-up booklet/signature layout that covers
-  saddle-stitch booklets and multi-signature sewn books.
+- **Folio, quarto, and octavo imposition** — 1, 2, or 3 folds per sheet (4, 8,
+  or 16 pages per sheet), with the page rotations each fold requires. Every
+  layout is *physically verified*: the engine re-folds its own output in
+  software and confirms the pages read 1, 2, 3, … in order.
 - **Configurable:** paper size (A4/A3/A5/Letter/Legal/Tabloid), sheets per
   signature, proportional vs. snug fit, page centering, outer margins, spine
   gutter, crop marks, and a dotted fold line.
@@ -52,7 +54,12 @@ signatures hold `4 × sheets-per-signature` pages.
 
 ## Install & run
 
-Requires Python 3.11+ (tested on 3.14) and macOS.
+Requires **Python 3.13** on macOS.
+
+> ⚠️ **Not Python 3.14.** PySide6 6.11 crashes on startup under Python 3.14
+> (`SIGABRT` in the Qt platform plugin — macOS shows a "Python quit
+> unexpectedly" report). Use 3.13: `brew install python@3.13`. The launcher
+> script below picks 3.13 automatically.
 
 ```bash
 git clone https://github.com/ruxpi/MyBinder.git
@@ -63,7 +70,7 @@ cd MyBinder
 Or manually:
 
 ```bash
-python3 -m venv .venv
+python3.13 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python mybinder.py
 ```
@@ -106,6 +113,7 @@ python -m bookbinder impose book.epub -o out.pdf --sheets 4 --paper A4
 ```
 bookbinder/      core library (no GUI dependency)
   layout.py      signature math + recommendation engine
+  folding.py     fold-simulation imposition (folio/quarto/octavo)
   document.py    PDF/EPUB loading via PyMuPDF
   impose.py      imposition engine
   cli.py         command-line interface

@@ -6,7 +6,8 @@ reads **PDF and EPUB**, recommends sensible signature layouts for your page
 count, and exports a print-ready PDF.
 
 Inspired by the excellent [bookbinder-js](https://github.com/momijizukamori/bookbinder-js),
-rebuilt natively in Python.
+rebuilt natively in Python — wrapped in a **classic Mac OS (System 7 / Platinum)
+interface**, pinstriped title bar and all.
 
 ![MyBinder screenshot](assets/screenshot.png)
 
@@ -33,6 +34,9 @@ rebuilt natively in Python.
   gutter, crop marks, and a dotted fold line.
 - **Live preview** — page through the imposed sheets (front/back of each sheet)
   before you commit.
+- **Classic Mac OS interface** — a frameless window with a hand-drawn System 7
+  pinstriped title bar, square close box, beveled Platinum buttons, engraved
+  group frames, X-mark checkboxes, and the Geneva system font.
 
 ## Terminology, briefly
 

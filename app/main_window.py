@@ -10,7 +10,7 @@ import os
 import sys
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QImage, QPixmap, QAction
+from PySide6.QtGui import QColor, QImage, QPixmap, QAction
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
+    QSizeGrip,
     QSizePolicy,
     QSpinBox,
     QTableWidget,
@@ -39,6 +40,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bookbinder.document import SourceDocument, load_document  # noqa: E402
 from bookbinder.impose import PAPER_SIZES, ImposeOptions, impose, impose_to_doc  # noqa: E402
 from bookbinder.layout import FOLDS, recommend  # noqa: E402
+from app.classic import ClassicTitleBar, apply_classic_theme  # noqa: E402
 
 SUPPORTED_FILTER = "Books (*.pdf *.epub *.mobi *.fb2 *.cbz *.xps);;All files (*)"
 
@@ -48,6 +50,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("MyBinder — Bookbinding Imposition")
         self.resize(1180, 820)
+        # Frameless: we draw our own classic Mac OS title bar.
+        self.setWindowFlag(Qt.FramelessWindowHint, True)
 
         self.source: SourceDocument | None = None
         self.preview_side = 0
@@ -76,14 +80,34 @@ class MainWindow(QMainWindow):
         m.addAction(save_act)
 
     def _build_ui(self) -> None:
-        root = QWidget()
-        layout = QHBoxLayout(root)
-        layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(12)
+        frame = QWidget()
+        frame.setObjectName("windowFrame")
+        outer = QVBoxLayout(frame)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
 
+        self.titlebar = ClassicTitleBar("MyBinder")
+        self.titlebar.closeClicked.connect(self.close)
+        outer.addWidget(self.titlebar)
+
+        content = QWidget()
+        content.setObjectName("content")
+        layout = QHBoxLayout(content)
+        layout.setContentsMargins(12, 12, 12, 8)
+        layout.setSpacing(12)
         layout.addWidget(self._build_controls(), 0)
         layout.addWidget(self._build_preview(), 1)
-        self.setCentralWidget(root)
+        outer.addWidget(content, 1)
+
+        # bottom strip with a classic resize grip (frameless windows need one)
+        bottom = QHBoxLayout()
+        bottom.setContentsMargins(0, 0, 3, 3)
+        bottom.addStretch(1)
+        bottom.addWidget(QSizeGrip(frame), 0, Qt.AlignBottom | Qt.AlignRight)
+        outer.addLayout(bottom)
+
+        self.setCentralWidget(frame)
+        self.setContentsMargins(0, 0, 0, 0)
 
     def _build_controls(self) -> QWidget:
         panel = QWidget()
@@ -197,12 +221,12 @@ class MainWindow(QMainWindow):
         v.setContentsMargins(0, 0, 0, 0)
 
         self.scroll = QScrollArea()
+        self.scroll.setObjectName("previewWell")
         self.scroll.setWidgetResizable(True)
-        self.scroll.setFrameShape(QFrame.StyledPanel)
-        self.scroll.setStyleSheet("background:#33373b;")
+        self.scroll.setFrameShape(QFrame.NoFrame)
         self.preview_label = QLabel("Open a document to see the imposed sheets.")
         self.preview_label.setAlignment(Qt.AlignCenter)
-        self.preview_label.setStyleSheet("color:#aaa;")
+        self.preview_label.setStyleSheet("color:#e8e8e8;")
         self.preview_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.scroll.setWidget(self.preview_label)
         v.addWidget(self.scroll, 1)
@@ -256,7 +280,7 @@ class MainWindow(QMainWindow):
             f"<b>{self.source.name}</b><br>{kind} · {self.source.page_count} pages · "
             f"{w:.0f}×{h:.0f} pt"
         )
-        self.doc_label.setStyleSheet("color:#ddd;")
+        self.doc_label.setStyleSheet("color:#111;")
         self.preview_side = 0
         self._update_enabled(True)
         self._refresh()
@@ -298,7 +322,7 @@ class MainWindow(QMainWindow):
             for c, text in enumerate(cells):
                 item = QTableWidgetItem(text)
                 if r.padding == 0:
-                    item.setForeground(Qt.green)
+                    item.setForeground(QColor("#007000"))
                 self.rec_table.setItem(i, c, item)
         self.rec_table.resizeColumnsToContents()
 
@@ -375,6 +399,7 @@ def _row(label: str, widget: QWidget) -> QHBoxLayout:
 def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("MyBinder")
+    apply_classic_theme(app)
     win = MainWindow()
     win.show()
     return app.exec()
